@@ -1,0 +1,15 @@
+name: "kube-finder"
+
+# 日志级别
+# trace, debug, info, warn, error, fatal and panic
+logLevel: trace
+
+httpPort: "8080"
+
+# 集群kubecofig地址
+kubeconfig: "/root/.kube/config"
+
+cgroupPIDRoot: "/host/sys/fs/cgroup/pids"
+
+clients:
+  test_client_1: "rvL4JbBV~hxsGtE"

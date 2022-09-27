@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: kube-finder
+    version: v0.0.1
+  name: kube-finder
+spec:
+  selector:
+    matchLabels:
+      app: kube-finder
+      version: v0.0.1
+  template:
+    metadata:
+      labels:
+        app: kube-finder
+        version: v0.0.1
+    spec:
+      hostPID: true
+      nodeSelector:
+        kubernetes.io/os: linux
+      containers:
+      - image: registry.cn-beijing.aliyuncs.com/llaoj/kube-finder
+        name: finder
+        env:
+        - name: KUBE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBE_SERVICE
+          value: kube-finder
+        securityContext:
+          privileged: true
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /root/.kube
+          name: kubeconfig
+          readOnly: true
+        - mountPath: /host/proc
+          mountPropagation: HostToContainer
+          name: proc
+        - mountPath: /host/sys/fs/cgroup/pids
+          mountPropagation: HostToContainer
+          name: sysfscgrouppids
+          readOnly: true
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: kubeconfig
+        name: kubeconfig
+      - hostPath:
+          path: /proc
+          type: ""
+        name: proc
+      - hostPath:
+          path: /sys/fs/cgroup/pids
+          type: ""
+        name: sysfscgrouppids
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kube-finder
+  name: kube-finder
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: kube-finder
+  type: NodePort
