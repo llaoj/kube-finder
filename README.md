@@ -2,6 +2,8 @@
 
 一个独立的容器文件服务器, 可以通过该项目查看容器内(namespace/pod/container)的文件目录结构/列表, 下载文件或者上传文件到指定目录中. 使用golang开发, 直接操作主机 `/proc/<pid>/root` 目录, 速度很快.
 
+项目名取自MacOS Finder, 希望它像Finder一样好用.
+
 目前该项目处在alpha阶段。
 
 ## 为什么做这个项目?

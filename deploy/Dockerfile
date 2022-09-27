@@ -4,7 +4,6 @@ FROM golang:1.18
 WORKDIR /usr/src/app
 
 ENV GO111MODULE=on
-ENV GOPROXY=https://goproxy.cn
 
 COPY . .
 COPY deploy/config.prod.yaml /etc/kube-finder/config.yaml
