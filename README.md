@@ -2,9 +2,13 @@
 
 一个独立的容器文件服务器, 可以通过该项目查看容器内(namespace/pod/container)的文件目录结构/列表, 下载文件或者上传文件到指定目录中. 使用golang开发, 直接操作主机 `/proc/<pid>/root` 目录, 速度很快.
 
+这是一个后端项目, **仅提供API**, 前端对接之后可以是这样的
+
+![fileserver](./docs/fileserver.png)
+
 项目名取自MacOS Finder, 希望它像Finder一样好用.
 
-目前该项目处在alpha阶段。
+目前该项目处在`alpha`阶段.
 
 ## 为什么做这个项目?
 
@@ -24,32 +28,45 @@
 
 获取用于后续接口调用的jwt, 有效期默认30min
 
-#### request
+#### URL
 
 `GET /auth/token`
 
-```
-BasicAuth: 
-- username: <username>
-  password: <password>
+#### Header
+
+使用BasicAuth认证, 账号密码在config.yaml文件中配置, 请参考config.example.yaml中clients部分的配置:
+
+```shell
+username: <username>
+password: <password>
 ```
 
-#### response
+#### 响应
+
+响应码200，同时返回token。
 
 ```
 http status 200
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk3MjUsImlzcyI6Imt1YmUtZmlsZXNlcnZlciJ9.DA1CvAdSDs_p3c3BjQpvHX0s4UjNj4mLmP4mkZqYlro
 ```
 
-
 ### 2 文件列表/下载接口
 
-获取容器的文件列表
+获取集群中某一个容器的文件列表
+
+#### URL
 
 `GET /namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
 
+#### URL参数说明
 
-#### query string
+|param|type|remark|
+|-|-|-|
+|namespace|string|容器所在名称空间|
+|pod|string|容器所在pod|
+|container|string|容器|
+
+#### Query string说明
 
 |item|type|remark|
 |-|-|-|
@@ -63,7 +80,7 @@ subpath, for example:
 |/bin|string|directory|
 |/home/jimy/app.jar|string|file|
 
-#### response
+#### 响应
 
 `http status: 200 OK`
 
