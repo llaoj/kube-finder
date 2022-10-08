@@ -14,13 +14,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      SHA8: ${GITHUB_SHA::8}
-      GITHUB_REF: ${GITHUB_REF#refs/*/}
     steps:
       - uses: actions/checkout@v2
       - name: Build and push image to ACR
         run: |
+          SHA8=${GITHUB_SHA::8}
+          GITHUB_REF=${GITHUB_REF#refs/*/}
           if [[ "$GITHUB_REF" == "release-"* ]]; then
             IMAGE=$REGISTRY/$IMAGE_NAME:$SHA8
           else
