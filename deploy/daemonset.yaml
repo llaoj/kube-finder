@@ -3,24 +3,24 @@ kind: DaemonSet
 metadata:
   labels:
     app: kube-finder
-    version: v0.0.1
+    version: v0.1
   name: kube-finder
 spec:
   selector:
     matchLabels:
       app: kube-finder
-      version: v0.0.1
+      version: v0.1
   template:
     metadata:
       labels:
         app: kube-finder
-        version: v0.0.1
+        version: v0.1
     spec:
       hostPID: true
       nodeSelector:
         kubernetes.io/os: linux
       containers:
-      - image: registry.cn-beijing.aliyuncs.com/llaoj/kube-finder
+      - image: registry.cn-beijing.aliyuncs.com/llaoj/kube-finder:07acd3f2
         name: finder
         env:
         - name: KUBE_NAMESPACE

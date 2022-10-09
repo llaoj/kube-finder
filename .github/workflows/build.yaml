@@ -21,7 +21,7 @@ jobs:
           SHA8=${GITHUB_SHA::8}
           GITHUB_REF=${GITHUB_REF#refs/*/}
           if [[ "$GITHUB_REF" == "release-"* ]]; then
-            IMAGE=$REGISTRY/$IMAGE_NAME:$SHA8
+            IMAGE=$REGISTRY/$IMAGE_NAME:${SHA8}-test
           else
             IMAGE=$REGISTRY/$IMAGE_NAME:$GITHUB_REF
           fi
