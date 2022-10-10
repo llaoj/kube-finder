@@ -32,7 +32,7 @@
 
 #### URL
 
-`GET /auth/token`
+`GET /apis/v1/auth/token`
 
 #### Header
 
@@ -58,7 +58,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk
 
 #### URL
 
-`GET /namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
+`GET /apis/v1/namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
 
 #### URL参数说明
 
@@ -132,7 +132,7 @@ subpath, for example:
 
 上传文件到指定容器的路径(subpath)下, **路径必须存在**. 上传之后的文件权限: `0777`
 
-`POST /namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
+`POST /apis/v1/namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
 
 #### query string
 

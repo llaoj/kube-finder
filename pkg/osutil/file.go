@@ -23,6 +23,14 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
-func IsFile(path string) bool {
-	return !IsDir(path)
+func FileName(path string) string {
+	s, err := os.Stat(path)
+	if err != nil {
+		return ""
+	}
+	return s.Name()
 }
+
+//func IsFile(path string) bool {
+//	return !IsDir(path)
+//}

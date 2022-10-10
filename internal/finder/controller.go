@@ -145,6 +145,11 @@ func (controller *Controller) ListHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, responseFiles)
 		return
 	} else {
+		fileName := osutil.FileName(fullPath)
+		if fileName == "" {
+			fileName = "file"
+		}
+		c.Header("Content-Disposition", "attachment; filename="+fileName)
 		c.File(fullPath)
 		return
 	}
