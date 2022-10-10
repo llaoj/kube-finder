@@ -178,17 +178,19 @@ func statFile(path string, f fs.FileInfo) (*File, error) {
 	passwdFile := root + "/etc/passwd"
 	log.WithFields(log.Fields{"passwdFile": passwdFile}).Trace()
 	log.Tracef("stat file: %+v", stat)
-	u, err := osutil.LookupUserIdFrom(passwdFile, fmt.Sprint(stat.Uid))
-	if err != nil {
-		return nil, err
+	user, err := osutil.LookupUserIdFrom(passwdFile, fmt.Sprint(stat.Uid))
+	if err == nil && user != nil {
+		file.UserName = user.Username
+	} else {
+		file.UserName = fmt.Sprint(stat.Uid)
 	}
-	file.UserName = u.Username
 
 	group, err := osutil.LookupGroupIdFrom(root+"/etc/group", fmt.Sprint(stat.Gid))
-	if err != nil {
-		return nil, err
+	if err == nil && group != nil {
+		file.GroupName = group.Name
+	} else {
+		file.GroupName = fmt.Sprint(stat.Gid)
 	}
-	file.GroupName = group.Name
 
 	if f.Mode()&os.ModeSymlink != 0 {
 		link, err := os.Readlink(fmt.Sprintf("%s/%s", path, f.Name()))
