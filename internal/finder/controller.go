@@ -175,7 +175,10 @@ func statFile(path string, f fs.FileInfo) (*File, error) {
 	}
 
 	root := strings.Join(strings.Split(path, "/")[:5], "/")
-	u, err := osutil.LookupUserIdFrom(root+"/etc/passwd", fmt.Sprint(stat.Uid))
+	passwdFile := root + "/etc/passwd"
+	log.WithFields(log.Fields{"passwdFile": passwdFile}).Trace()
+	log.Tracef("stat file: %+v", stat)
+	u, err := osutil.LookupUserIdFrom(passwdFile, fmt.Sprint(stat.Uid))
 	if err != nil {
 		return nil, err
 	}
