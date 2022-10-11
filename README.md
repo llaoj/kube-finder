@@ -203,8 +203,15 @@ Status Code: 200
 
 ## 测试
 
-1. 大文件上传: 963Mi 3m32s
-2. 大文件下载: 963Mi 2m31s
+实际传输速度取决于网络环境。以下数据为内网测试， 仅供参考：
+
+1. 大文件上传 传输速度130Mi/s， 文件大小 918Mi 用时 48.68s
+
+![upload](docs/upload.png)
+
+2. 大文件下载 传输速度 10Mi/s， 文件大小 918Mi 用时 60s
+
+![download.png](docs/download.png)
 
 ## 部署
 
