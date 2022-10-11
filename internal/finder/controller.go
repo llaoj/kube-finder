@@ -45,11 +45,11 @@ func (controller *Controller) ProxyHandler(c *gin.Context) {
 
 	pod, err := kube.Pod(c, namespaceName, podName)
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	if pod == nil {
-		c.String(http.StatusNotFound, "pod not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "pod not found"})
 		return
 	}
 
@@ -61,7 +61,7 @@ func (controller *Controller) ProxyHandler(c *gin.Context) {
 		}
 	}
 	if containerID == "" {
-		c.String(http.StatusNotFound, "containerid not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "containerid not found"})
 		return
 	}
 	log.WithFields(log.Fields{
@@ -74,7 +74,7 @@ func (controller *Controller) ProxyHandler(c *gin.Context) {
 	endpoint, exist := controller.EndpointManager.Endpoints[pod.Status.HostIP]
 	if !exist {
 		log.WithFields(log.Fields{"endpoint": endpoint}).Error("finder endpoint not found")
-		c.String(http.StatusNotFound, "finder endpoint not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "finder endpoint not found"})
 		return
 	}
 	url := "http://" + endpoint + "/apis/v1/containers/" + containerID + "/files?" + c.Request.URL.RawQuery
@@ -87,14 +87,14 @@ func proxyEndpoint(c *gin.Context, rawURL string) {
 	client := &http.Client{}
 	req, err := http.NewRequest(c.Request.Method, rawURL, c.Request.Body)
 	if err != nil {
-		c.String(http.StatusServiceUnavailable, "new request failed: %s", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("new request failed: %s", err)})
 		return
 	}
 	req.Header = c.Request.Header
 	log.WithFields(log.Fields{"request": req}).Debug("reverse proxy...")
 	resp, err := client.Do(req)
 	if err != nil {
-		c.String(http.StatusServiceUnavailable, "reverse proxy failed: %s", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("reverse proxy failed: %s", err)})
 		return
 	}
 	reader := resp.Body
@@ -113,22 +113,21 @@ func (controller *Controller) ListHandler(c *gin.Context) {
 
 	pid := osutil.ContainerPID(containerID)
 	if pid == "" {
-		c.String(http.StatusNotFound, "pid not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "pid not found"})
 		return
 	}
 
 	fullPath := fmt.Sprintf("/host/proc/%s/root%s", pid, subpath)
 	log.WithFields(log.Fields{"fullPath": fullPath}).Trace()
 	if !osutil.Exists(fullPath) {
-		c.String(http.StatusNotFound, "subpath not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "subpath not found"})
 		return
 	}
 
 	if osutil.IsDir(fullPath) {
 		files, err := ioutil.ReadDir(fullPath)
 		if err != nil {
-			log.Error(err)
-			c.Status(http.StatusInternalServerError)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -137,7 +136,7 @@ func (controller *Controller) ListHandler(c *gin.Context) {
 		for _, file := range files {
 			f, err := statFile(fullPath, file)
 			if err != nil {
-				c.String(http.StatusServiceUnavailable, err.Error())
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
 			responseFiles.Files = append(responseFiles.Files, *f)
@@ -213,13 +212,13 @@ func (controller *Controller) CreateHandler(c *gin.Context) {
 	subpath := clipSubpath(c.DefaultQuery("subpath", "/"))
 	file, err := c.FormFile("file")
 	if err != nil {
-		c.String(http.StatusBadRequest, "get file err: %s", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("get file err: %s", err)})
 		return
 	}
 
 	pid := osutil.ContainerPID(containerID)
 	if pid == "" {
-		c.String(http.StatusNotFound, "pid not found")
+		c.JSON(http.StatusNotFound, gin.H{"error": "pid not found"})
 		return
 	}
 
@@ -227,14 +226,13 @@ func (controller *Controller) CreateHandler(c *gin.Context) {
 	log.WithFields(log.Fields{"filename": filename}).Debug("creating file...")
 	// 0666
 	if err := c.SaveUploadedFile(file, filename); err != nil {
-		c.String(http.StatusBadRequest, "upload file err: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("upload file err: %s", err)})
 		return
 	}
 	// 0777
 	if err := os.Chmod(filename, os.FileMode(0777)); err != nil {
-		c.String(http.StatusBadRequest, "file chmod err: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("file chmod err: %s", err)})
 		return
 	}
-
-	c.String(http.StatusOK, "file %s uploaded successfully", filename)
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("file %s uploaded successfully", filename)})
 }

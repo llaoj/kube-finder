@@ -24,6 +24,28 @@
 
 ## 接口
 
+### 通用说明
+
+接口错误都是以json格式返回error字段说明，http状态码根据错误情况不同一般为：`404`、`500`, 比如：
+
+1. token 过期
+
+```
+Status Code: 403
+{
+    "error": "token is expired by 14h5m25s"
+}
+```
+
+2. 未提供 token
+
+```
+Status Code: 403
+{
+    "error": "token not found"
+}
+```
+
 主要包括获取token接口, 列表和上传接口, 首先获取接口认证用的jwt, 然后使用文件列表和文件上传接口. 下面`接口2`和`接口3`已经配置允许cors请求
 
 ### 1 获取token接口
@@ -48,8 +70,10 @@ password: <password>
 响应码200，同时返回token。
 
 ```
-http status 200
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk3MjUsImlzcyI6Imt1YmUtZmlsZXNlcnZlciJ9.DA1CvAdSDs_p3c3BjQpvHX0s4UjNj4mLmP4mkZqYlro
+Status Code: 200
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk3MjUsImlzcyI6Imt1YmUtZmlsZXNlcnZlciJ9.DA1CvAdSDs_p3c3BjQpvHX0s4UjNj4mLmP4mkZqYlro"
+}
 ```
 
 ### 2 文件列表/下载接口
@@ -153,8 +177,10 @@ Content-Type: multipart/form-data
 #### response
 
 ```
-http status 200
-file /host/proc/9698/root/home/curl_user/test_dir/LICENSE uploaded successfully
+Status Code: 200
+{
+    "message": "file /host/proc/9698/root/home/curl_user/test_dir/LICENSE uploaded successfully"
+}
 ```
 
 ## 架构图

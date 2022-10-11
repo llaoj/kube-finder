@@ -13,7 +13,7 @@ import (
 func Api(router *gin.Engine, finderController *finder.Controller) {
 	router.Use(cors.Default())
 	router.Group("/apis/v1/auth", gin.BasicAuth(gin.Accounts(config.Get().Clients))).GET("/token", func(c *gin.Context) {
-		c.String(http.StatusOK, middleware.NewJWT(c.GetString(gin.AuthUserKey)))
+		c.JSON(http.StatusOK, gin.H{"token": middleware.NewJWT(c.GetString(gin.AuthUserKey))})
 		return
 	})
 	v1 := router.Group("/apis/v1").Use(middleware.JWT())
