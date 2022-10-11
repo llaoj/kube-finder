@@ -103,7 +103,11 @@ func proxyEndpoint(c *gin.Context, rawURL string) {
 	}(reader)
 	contentLength := resp.ContentLength
 	contentType := resp.Header.Get("Content-Type")
-	c.DataFromReader(resp.StatusCode, contentLength, contentType, reader, nil)
+	var extraHeaders map[string]string
+	for key := range resp.Header {
+		extraHeaders[key] = resp.Header.Get(key)
+	}
+	c.DataFromReader(resp.StatusCode, contentLength, contentType, reader, extraHeaders)
 	return
 }
 
