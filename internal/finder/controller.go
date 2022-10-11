@@ -148,8 +148,7 @@ func (controller *Controller) ListHandler(c *gin.Context) {
 		if fileName == "" {
 			fileName = "file"
 		}
-		c.Header("Content-Disposition", "attachment; filename="+fileName)
-		c.File(fullPath)
+		c.FileAttachment(fullPath, fileName)
 		return
 	}
 }
