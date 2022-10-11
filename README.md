@@ -6,7 +6,11 @@
 
 这是一个后端项目, **仅提供API**, 前端对接之后可以是这样的
 
-![fileserver](docs/fileserver.png)
+![fileserver1](docs/fileserver1.png)
+
+也可以是这样的：
+
+![fileserver2](docs/fileserver2.png)
 
 项目名取自MacOS Finder, 希望它像Finder一样好用.
 
