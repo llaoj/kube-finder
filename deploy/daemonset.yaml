@@ -20,7 +20,7 @@ spec:
       nodeSelector:
         kubernetes.io/os: linux
       containers:
-      - image: registry.cn-beijing.aliyuncs.com/llaoj/kube-finder:07acd3f2
+      - image: registry.cn-beijing.aliyuncs.com/llaoj/kube-finder:v0.1.0
         name: finder
         env:
         - name: KUBE_NAMESPACE
