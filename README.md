@@ -215,10 +215,9 @@ Status Code: 200
 
 ## 部署
 
+默认配置在 `deploy/config.prod.yaml` 中， 如果需要变更配置。使用configmap挂载到容器中`/etc/kube-finder/config.yaml`就可以了。 
+
 ```
 # 部署/变更部署
 kubectl -n <ns> apply -f deploy/daemonset.yaml
-
-# 更新镜像
-kubectl -n <ns> rollout restart ds/kube-finder
 ```
