@@ -6,7 +6,11 @@
 
 这是一个后端项目, **仅提供API**, 前端对接之后可以是这样的
 
-![fileserver](docs/fileserver.png)
+![fileserver1](docs/fileserver1.png)
+
+也可以是这样的：
+
+![fileserver2](docs/fileserver2.png)
 
 项目名取自MacOS Finder, 希望它像Finder一样好用.
 
@@ -24,6 +28,28 @@
 
 ## 接口
 
+### 通用说明
+
+接口错误都是以json格式返回error字段说明，http状态码根据错误情况不同一般为：`404`、`500`, 比如：
+
+1. token 过期
+
+```
+Status Code: 403
+{
+    "error": "token is expired by 14h5m25s"
+}
+```
+
+2. 未提供 token
+
+```
+Status Code: 403
+{
+    "error": "token not found"
+}
+```
+
 主要包括获取token接口, 列表和上传接口, 首先获取接口认证用的jwt, 然后使用文件列表和文件上传接口. 下面`接口2`和`接口3`已经配置允许cors请求
 
 ### 1 获取token接口
@@ -32,7 +58,7 @@
 
 #### URL
 
-`GET /auth/token`
+`GET /apis/v1/auth/token`
 
 #### Header
 
@@ -48,8 +74,10 @@ password: <password>
 响应码200，同时返回token。
 
 ```
-http status 200
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk3MjUsImlzcyI6Imt1YmUtZmlsZXNlcnZlciJ9.DA1CvAdSDs_p3c3BjQpvHX0s4UjNj4mLmP4mkZqYlro
+Status Code: 200
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk3MjUsImlzcyI6Imt1YmUtZmlsZXNlcnZlciJ9.DA1CvAdSDs_p3c3BjQpvHX0s4UjNj4mLmP4mkZqYlro"
+}
 ```
 
 ### 2 文件列表/下载接口
@@ -58,7 +86,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyb25ncWl5dW4iLCJleHAiOjE2NTg3OTk
 
 #### URL
 
-`GET /namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
+`GET /apis/v1/namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
 
 #### URL参数说明
 
@@ -132,7 +160,7 @@ subpath, for example:
 
 上传文件到指定容器的路径(subpath)下, **路径必须存在**. 上传之后的文件权限: `0777`
 
-`POST /namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
+`POST /apis/v1/namespaces/<namespace>/pods/<pod>/containers/<container>/files?subpath=<subpath>&token=<jwt>`
 
 #### query string
 
@@ -153,8 +181,10 @@ Content-Type: multipart/form-data
 #### response
 
 ```
-http status 200
-file /host/proc/9698/root/home/curl_user/test_dir/LICENSE uploaded successfully
+Status Code: 200
+{
+    "message": "file /host/proc/9698/root/home/curl_user/test_dir/LICENSE uploaded successfully"
+}
 ```
 
 ## 架构图
@@ -173,15 +203,21 @@ file /host/proc/9698/root/home/curl_user/test_dir/LICENSE uploaded successfully
 
 ## 测试
 
-1. 大文件上传: 963Mi 3m32s
-2. 大文件下载: 963Mi 2m31s
+实际传输速度取决于网络环境。以下数据为内网测试， 仅供参考：
+
+1. 大文件上传 传输速度130Mi/s， 文件大小 918Mi 用时 48.68s
+
+![upload](docs/upload.png)
+
+2. 大文件下载 传输速度 10Mi/s， 文件大小 918Mi 用时 60s
+
+![download.png](docs/download.png)
 
 ## 部署
+
+默认配置在 `deploy/config.prod.yaml` 中， 如果需要变更配置。使用configmap挂载到容器中`/etc/kube-finder/config.yaml`就可以了。 
 
 ```
 # 部署/变更部署
 kubectl -n <ns> apply -f deploy/daemonset.yaml
-
-# 更新镜像
-kubectl -n <ns> rollout restart ds/kube-finder
 ```

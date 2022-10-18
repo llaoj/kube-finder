@@ -17,7 +17,7 @@ func JWT() gin.HandlerFunc {
 		// tokenString := c.Request.Header.Get("Authorization")
 		tokenString := c.Query("token")
 		if tokenString == "" {
-			c.String(http.StatusForbidden, "token not found")
+			c.JSON(http.StatusForbidden, gin.H{"error": "token not found"})
 			c.Abort()
 			return
 		}
@@ -27,7 +27,7 @@ func JWT() gin.HandlerFunc {
 			return signingKey, nil
 		})
 		if err != nil {
-			c.String(http.StatusForbidden, err.Error())
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}
