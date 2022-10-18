@@ -2,8 +2,10 @@ name: build container image
 
 on:
   push:
-    branch:
-    - main
+    branches:
+    - release-**
+    tags:
+    - 'v[0-9].[0-9]+.[0-9]+'
 
 env:
   REGISTRY: registry.cn-beijing.aliyuncs.com
@@ -12,20 +14,17 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # env:
-    #   SHA8: ${GITHUB_SHA::8}
     steps:
-
       - uses: actions/checkout@v2
-
-      - name: Declare some variables
-        id: vars
-        shell: bash
-        run: |
-          echo "::set-output name=image::$REGISTRY/$IMAGE_NAME"
-
       - name: Build and push image to ACR
         run: |
-          docker build -f deploy/Dockerfile -t ${{ steps.vars.outputs.image }} .
+          SHA8=${GITHUB_SHA::8}
+          GITHUB_REF=${GITHUB_REF#refs/*/}
+          if [[ "$GITHUB_REF" == "release-"* ]]; then
+            IMAGE=$REGISTRY/$IMAGE_NAME:${SHA8}-test
+          else
+            IMAGE=$REGISTRY/$IMAGE_NAME:$GITHUB_REF
+          fi
+          docker build -f deploy/Dockerfile -t $IMAGE .
           docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
-          docker push ${{ steps.vars.outputs.image }}
+          docker push $IMAGE
